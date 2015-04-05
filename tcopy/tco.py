@@ -76,12 +76,11 @@ def tco(f):
     name = f.__name__
     filename = inspect.getsourcefile(f)
     source = inspect.getsource(f)
-    module = inspect.getmodule(f)
     tree = ast.parse(deindent(source))
     tree = TCOTransformer(name).visit(tree)
     tree = ast.fix_missing_locations(tree)
     code = compile(tree, filename, "exec")
-    globals_, locals_ = dict(module.__dict__), {}
+    globals_, locals_ = dict(f.__globals__), {}
     for i, var_name in enumerate(f.__code__.co_freevars):
         if var_name == name:
             continue

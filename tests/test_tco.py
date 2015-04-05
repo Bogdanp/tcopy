@@ -66,3 +66,8 @@ def test_closures():
         return fact
 
     assert f()(1000) == fact_(1000)
+
+
+def test_module():
+    from .test_module import fib
+    assert fib(1000) == fib_(1000)
