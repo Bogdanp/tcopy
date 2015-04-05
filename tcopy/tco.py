@@ -9,6 +9,19 @@ from ast import (
 from functools import wraps
 
 
+def deindent(source):
+    if source.startswith(" "):
+        lines = source.split("\n")
+        level = len(filter(lambda s: not s, lines[0].split(" ")))
+        result = []
+        for line in lines:
+            result.append(line[level:])
+
+        return "\n".join(result)
+
+    return source
+
+
 def isa(n, k):
     return isa_and_has(n, k)
 
@@ -70,7 +83,7 @@ def tco(f):
     filename = inspect.getsourcefile(f)
     source = inspect.getsource(f)
     module = inspect.getmodule(f)
-    tree = ast.parse(source)
+    tree = ast.parse(deindent(source))
     tree = TCOTransformer(name).visit(tree)
     tree = ast.fix_missing_locations(tree)
     code = compile(tree, filename, "exec")

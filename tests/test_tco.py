@@ -16,3 +16,16 @@ def test_fib_1000_no_tco():
 
 def test_fib_1000_with_tco():
     assert tco(fib)(1000)
+
+
+def test_nested():
+    def f():
+        @tco
+        def fact(n, a=1):
+            if n == 0:
+                return a
+            return fact(n - 1, a * n)
+
+        return fact
+
+    assert f()(1000)
