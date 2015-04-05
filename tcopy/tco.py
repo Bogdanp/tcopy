@@ -4,7 +4,7 @@ import inspect
 from ast import (
     copy_location,
 
-    Assign, Load, Name, Store, Tuple, While
+    Assign, Dict, List, Load, Name, Num, Store, Str, Tuple, While
 )
 from functools import wraps
 
@@ -13,11 +13,7 @@ def deindent(source):
     if source.startswith(" "):
         lines = source.split("\n")
         level = len(filter(lambda s: not s, lines[0].split(" ")))
-        result = []
-        for line in lines:
-            result.append(line[level:])
-
-        return "\n".join(result)
+        return "\n".join(line[level:] for line in lines)
 
     return source
 
@@ -53,7 +49,7 @@ class TCOTransformer(ast.NodeTransformer):
 
                 return copy_location(Assign([targets], value), node)
 
-        if isa(node.value, Name):
+        if isinstance(node.value, (Name, Num, Str, List, Tuple, Dict)):
             return node
 
         raise ValueError("invalid expression in tail position")
