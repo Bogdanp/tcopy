@@ -4,7 +4,7 @@ import inspect
 from ast import (
     copy_location,
 
-    Assign, Dict, List, Load, Name, Num, Store, Str, Tuple, While
+    Assign, Load, Name, Store, Tuple, While
 )
 from functools import wraps
 
@@ -49,7 +49,7 @@ class TCOTransformer(ast.NodeTransformer):
 
                 return copy_location(Assign([targets], value), node)
 
-        if isinstance(node.value, (Name, Num, Str, List, Tuple, Dict)):
+        if isinstance(node.value, Name):
             return node
 
         raise ValueError("invalid expression in tail position")
