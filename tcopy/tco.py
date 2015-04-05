@@ -2,9 +2,7 @@ import ast
 import inspect
 
 from ast import (
-    copy_location,
-
-    Assign, Continue, Load, Name, Store, Tuple, While
+    Assign, Continue, Load, Name, Num, Store, Tuple, While
 )
 from functools import wraps
 
@@ -18,11 +16,7 @@ def deindent(source):
     return source
 
 
-def isa(n, k):
-    return isa_and_has(n, k)
-
-
-def isa_and_has(n, k, **kwargs):
+def isa(n, k, **kwargs):
     if not isinstance(n, k):
         return False
 
@@ -41,7 +35,7 @@ class TCOTransformer(ast.NodeTransformer):
     def visit_Return(self, node):
         if isa(node.value, ast.Call):
             call = node.value
-            if isa_and_has(call.func, Name, id=self.name):
+            if isa(call.func, Name, id=self.name):
                 value = Tuple(call.args, Load())
                 targets = Tuple([], Store())
                 for i, argument in enumerate(self.args.args):
@@ -73,10 +67,8 @@ class TCOTransformer(ast.NodeTransformer):
             else:
                 body.append(child)
 
-        while_block = While(ast.Num(1), [], [])
-        while_block.body = body
         node.decorator_list = decorators
-        node.body = [while_block]
+        node.body = [While(Num(1), body, [])]
         return node
 
 
