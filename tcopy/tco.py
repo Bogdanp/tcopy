@@ -4,7 +4,7 @@ import inspect
 from ast import (
     copy_location,
 
-    Assign, Load, Name, Store, Tuple, While
+    Assign, Continue, Load, Name, Store, Tuple, While
 )
 from functools import wraps
 
@@ -47,7 +47,9 @@ class TCOTransformer(ast.NodeTransformer):
                 for i, argument in enumerate(self.args.args):
                     targets.elts.append(Name(argument.id, ast.Store()))
 
-                return copy_location(Assign([targets], value), node)
+                assignment = Assign([targets], value)
+                continue_ = Continue()
+                return [assignment, continue_]
 
         if isinstance(node.value, Name):
             return node
@@ -65,7 +67,11 @@ class TCOTransformer(ast.NodeTransformer):
             decorators.append(child)
 
         for child in node.body:
-            body.append(self.visit(child))
+            child = self.visit(child)
+            if isinstance(child, list):
+                body.extend(child)
+            else:
+                body.append(child)
 
         while_block = While(ast.Num(1), [], [])
         while_block.body = body

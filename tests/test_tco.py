@@ -24,6 +24,12 @@ def fib(n, x=1, y=1):
     return fib(n - 1, y, x + y)
 
 
+def fib2(n, x=1, y=1):
+    if n > 0:
+        return fib2(n - 1, y, x + y)
+    return x
+
+
 def test_fib_1000_no_tco():
     with pytest.raises(RuntimeError):
         fib(1000)
@@ -31,6 +37,7 @@ def test_fib_1000_no_tco():
 
 def test_fib_1000_with_tco():
     assert tco(fib)(1000) == fib_(1000)
+    assert tco(fib2)(1000) == fib_(1000)
 
 
 def test_nested():
