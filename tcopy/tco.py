@@ -84,5 +84,11 @@ def tco(f):
     tree = ast.fix_missing_locations(tree)
     code = compile(tree, filename, "exec")
     globals_, locals_ = module.__dict__, {}
+    for i, var_name in enumerate(f.__code__.co_freevars):
+        if var_name == name:
+            continue
+
+        globals_[var_name] = f.__closure__[i].cell_contents
+
     exec code in globals_, locals_
     return wraps(f)(locals_[name])
