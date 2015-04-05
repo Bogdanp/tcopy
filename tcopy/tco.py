@@ -2,7 +2,7 @@ import ast
 import inspect
 
 from ast import (
-    Assign, Continue, Load, Name, Num, Store, Tuple, While
+    Assign, Call, Continue, Load, Name, Num, Store, Tuple, While
 )
 from functools import wraps
 
@@ -33,13 +33,13 @@ class TCOTransformer(ast.NodeTransformer):
         self.args = None
 
     def visit_Return(self, node):
-        if isa(node.value, ast.Call):
+        if isa(node.value, Call):
             call = node.value
             if isa(call.func, Name, id=self.name):
                 value = Tuple(call.args, Load())
                 targets = Tuple([], Store())
                 for i, argument in enumerate(self.args.args):
-                    targets.elts.append(Name(argument.id, ast.Store()))
+                    targets.elts.append(Name(argument.id, Store()))
 
                 assignment = Assign([targets], value)
                 continue_ = Continue()
@@ -81,7 +81,7 @@ def tco(f):
     tree = TCOTransformer(name).visit(tree)
     tree = ast.fix_missing_locations(tree)
     code = compile(tree, filename, "exec")
-    globals_, locals_ = module.__dict__, {}
+    globals_, locals_ = dict(module.__dict__), {}
     for i, var_name in enumerate(f.__code__.co_freevars):
         if var_name == name:
             continue
