@@ -52,7 +52,7 @@ class TCOTransformer(ast.NodeTransformer):
         if isinstance(node.value, Name):
             return node
 
-        raise ValueError("invalid expression in tail position")
+        raise TypeError("invalid expression in tail position")
 
     def visit_FunctionDef(self, node):
         self.args = node.args
