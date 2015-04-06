@@ -41,6 +41,7 @@ class TCOTransformer(ast.NodeTransformer):
         self.name = name
         self.source = source
         self.args = None
+        self.found_term = False
 
     def visit_Return(self, node):
         if isa(node.value, Call):
@@ -56,6 +57,7 @@ class TCOTransformer(ast.NodeTransformer):
                 return [assignment, continue_]
 
         if isinstance(node.value, Name):
+            self.found_term = True
             return node
 
         raise TypeError(build_error(
@@ -78,6 +80,9 @@ class TCOTransformer(ast.NodeTransformer):
                 body.extend(child)
             else:
                 body.append(child)
+
+        if not self.found_term:
+            raise TypeError("no terminating case")
 
         # Drop final `continue` from while block.
         if isinstance(body[-1], Continue):
