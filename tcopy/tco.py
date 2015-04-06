@@ -80,14 +80,14 @@ class TCOTransformer(ast.NodeTransformer):
 
         decorators, body = [], []
         for child in node.decorator_list:
-            if isinstance(child, Name) and child.id == "tco":
+            if isa(child, Name, id="tco"):
                 continue
 
             decorators.append(child)
 
         for child in node.body:
             child = self.visit(child)
-            if isinstance(child, list):
+            if isa(child, list):
                 body.extend(child)
             else:
                 body.append(child)
@@ -96,7 +96,7 @@ class TCOTransformer(ast.NodeTransformer):
             raise TypeError("no terminating case")
 
         # Drop final `continue` from while block.
-        if isinstance(body[-1], Continue):
+        if isa(body[-1], Continue):
             body = body[:-1]
 
         node.decorator_list = decorators
