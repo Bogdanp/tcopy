@@ -25,7 +25,6 @@ def fib(n, x=0, y=1):
         if n == 0:
             return x
         n, x, y = n - 1, y, x + y
-        continue
 ```
 
 ## Quirks
@@ -81,7 +80,6 @@ def outer1():
             if n == 0:
                 return acc
             n, acc = n - (lambda: one)(), acc * n
-            continue
 
     one = 1
     return fact
@@ -93,7 +91,6 @@ def outer2():
             if n == 0:
                 return acc
             n, acc = (lambda x: sub_one(x))(n), acc * n
-            continue
 
     sub_one = lambda x: x - 1
     return fact

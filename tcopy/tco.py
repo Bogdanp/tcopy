@@ -59,8 +59,7 @@ class TCOTransformer(ast.NodeTransformer):
             return node
 
         raise TypeError(build_error(
-            self.source, node,
-            "invalid expression in tail position"
+            self.source, node, "invalid expression in tail position"
         ))
 
     def visit_FunctionDef(self, node):
@@ -79,6 +78,10 @@ class TCOTransformer(ast.NodeTransformer):
                 body.extend(child)
             else:
                 body.append(child)
+
+        # Drop final `continue` from while block.
+        if isinstance(body[-1], Continue):
+            body = body[:-1]
 
         node.decorator_list = decorators
         node.body = [While(Num(1), body, [])]
