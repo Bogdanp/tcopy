@@ -19,7 +19,7 @@ def fib(n, x=0, y=1):
 The `tco` decorator will rewrite `fib` into the following at
 definition time:
 
-```
+```python
 def fib(n, x=0, y=1):
     while 1:
         if n == 0:
