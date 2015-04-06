@@ -36,10 +36,25 @@ def build_error(source, node, message):
     )
 
 
+class TailValidator(ast.NodeVisitor):
+    def __init__(self, name, source):
+        self.name = name
+        self.source = source
+
+    def visit_Call(self, node):
+        if isa(node.func, Name, id=self.name):
+            raise TypeError(build_error(
+                self.source, node, "invalid expression in tail position"
+            ))
+
+        self.generic_visit(node)
+
+
 class TCOTransformer(ast.NodeTransformer):
     def __init__(self, name, source):
         self.name = name
         self.source = source
+        self.validator = TailValidator(name, source)
         self.args = None
         self.found_term = False
 
@@ -56,13 +71,9 @@ class TCOTransformer(ast.NodeTransformer):
                 continue_ = Continue()
                 return [assignment, continue_]
 
-        if isinstance(node.value, Name):
-            self.found_term = True
-            return node
-
-        raise TypeError(build_error(
-            self.source, node, "invalid expression in tail position"
-        ))
+        self.validator.visit(node.value)
+        self.found_term = True
+        return node
 
     def visit_FunctionDef(self, node):
         self.args = node.args
