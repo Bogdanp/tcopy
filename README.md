@@ -2,7 +2,7 @@
 
 _Do not use this._
 
-A basic tail call optimizing decorator for Python.
+A direct tail call optimizing decorator for Python.
 
 ## Examples:
 
