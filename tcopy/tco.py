@@ -27,9 +27,19 @@ def isa(n, k, **kwargs):
     return True
 
 
+def build_error(source, node, message):
+    lines = source.split("\n")
+    lines = "\n".join(lines[node.lineno - 3:node.lineno])
+    caret = "~" * node.col_offset + "^"
+    return "{message}:\n{lines}\n{caret}".format(
+        message=message, lines=lines, caret=caret
+    )
+
+
 class TCOTransformer(ast.NodeTransformer):
-    def __init__(self, name):
+    def __init__(self, name, source):
         self.name = name
+        self.source = source
         self.args = None
 
     def visit_Return(self, node):
@@ -48,7 +58,10 @@ class TCOTransformer(ast.NodeTransformer):
         if isinstance(node.value, Name):
             return node
 
-        raise TypeError("invalid expression in tail position")
+        raise TypeError(build_error(
+            self.source, node,
+            "invalid expression in tail position"
+        ))
 
     def visit_FunctionDef(self, node):
         self.args = node.args
@@ -77,7 +90,7 @@ def tco(f):
     filename = inspect.getsourcefile(f)
     source = inspect.getsource(f)
     tree = ast.parse(deindent(source))
-    tree = TCOTransformer(name).visit(tree)
+    tree = TCOTransformer(name, source).visit(tree)
     tree = ast.fix_missing_locations(tree)
     code = compile(tree, filename, "exec")
     globals_, locals_ = dict(f.__globals__), {}
