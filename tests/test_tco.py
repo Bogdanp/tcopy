@@ -68,6 +68,37 @@ def test_closures():
     assert f()(1000) == fact_(1000)
 
 
+def test_closures2():
+    def f():
+        @tco
+        def fact(n, a=1):
+            if n == 0:
+                return a
+            return fact(sub_one(n), a * n)
+
+        def sub_one(x):
+            return x - 1
+
+        return fact
+
+    assert f()(1000) == fact_(1000)
+
+
+def test_closures3():
+    def f():
+        @tco
+        def fact(n, a=1):
+            if n == 0:
+                return a
+            return fact(n - x(), a * n)
+
+        x = 1
+
+        return fact
+
+    assert f()(1000) == fact_(1000)
+
+
 def test_module():
     from .test_module import fib
     assert fib(1000) == fib_(1000)

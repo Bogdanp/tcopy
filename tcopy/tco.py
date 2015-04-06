@@ -85,7 +85,16 @@ def tco(f):
         if var_name == name:
             continue
 
-        globals_[var_name] = f.__closure__[i].cell_contents
+        try:
+            globals_[var_name] = f.__closure__[i].cell_contents
+        except ValueError:
+            def late(*args, **kwargs):
+                contents = f.__closure__[i].cell_contents
+                if inspect.isfunction(contents):
+                    return contents(*args, **kwargs)
+                return contents
+
+            globals_[var_name] = late
 
     exec code in globals_, locals_
     return wraps(f)(locals_[name])
