@@ -30,6 +30,15 @@ def fib2(n, x=1, y=1):
     return x
 
 
+def test_cant_optimize():
+    with pytest.raises(TypeError):
+        @tco
+        def fib(n):
+            if n < 2:
+                return 1
+            return fib(n - 2) + fib(n - 1)
+
+
 def test_fib_1000_no_tco():
     with pytest.raises(RuntimeError):
         fib(1000)
