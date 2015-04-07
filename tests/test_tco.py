@@ -118,3 +118,22 @@ def test_closures3():
 def test_module():
     from .test_module import fib
     assert fib(1000) == fib_(1000)
+
+
+def test_named_arguments():
+    @tco
+    def fib(n, x=1, y=1):
+        if n == 0:
+            return x
+        return fib(n - 1, y=x + y, x=y)
+
+    assert fib(1000) == fib_(1000)
+
+
+def test_bad_arity():
+    with pytest.raises(TypeError):
+        @tco
+        def fib(n, x=1, y=1):
+            if n == 0:
+                return x
+            return fib(n - 1, y)

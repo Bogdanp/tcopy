@@ -62,12 +62,27 @@ class TCOTransformer(ast.NodeTransformer):
         if isa(node.value, Call):
             call = node.value
             if isa(call.func, Name, id=self.name):
-                value = Tuple(call.args, Load())
-                targets = Tuple([], Store())
+                indices = {}
+                value_list = [None] * len(self.args.args)
+                value = Tuple(value_list, Load())
+                target = Tuple([], Store())
                 for i, argument in enumerate(self.args.args):
-                    targets.elts.append(Name(argument.id, Store()))
+                    indices[argument.id] = i
+                    target.elts.append(Name(argument.id, Store()))
 
-                assignment = Assign([targets], value)
+                for i, argument in enumerate(call.args):
+                    value_list[i] = argument
+
+                for keyword in call.keywords:
+                    i = indices[keyword.arg]
+                    value_list[i] = keyword.value
+
+                if any(map(lambda x: x is None, value_list)):
+                    raise TypeError(build_error(
+                        self.source, call, "bad arity in tail-positioned expression"
+                    ))
+
+                assignment = Assign([target], value)
                 continue_ = Continue()
                 return [assignment, continue_]
 
