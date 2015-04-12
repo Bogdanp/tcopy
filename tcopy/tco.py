@@ -128,6 +128,7 @@ def tco(f):
     tree = ast.fix_missing_locations(tree)
     code = compile(tree, filename, "exec")
     globals_, locals_ = dict(f.__globals__), {}
+    deferred = {}
     for i, var_name in enumerate(f.__code__.co_freevars):
         if var_name == name:
             continue
@@ -135,13 +136,19 @@ def tco(f):
         try:
             globals_[var_name] = f.__closure__[i].cell_contents
         except ValueError:
-            def late(*args, **kwargs):
-                contents = f.__closure__[i].cell_contents
-                if inspect.isfunction(contents):
-                    return contents(*args, **kwargs)
-                return contents
-
-            globals_[var_name] = late
+            deferred[var_name] = f.__closure__[i]
 
     exec code in globals_, locals_
-    return wraps(f)(locals_[name])
+    func = wraps(f)(locals_[name])
+
+    if deferred:
+        def wrapper(*args, **kwargs):
+            for var_name, cell in deferred.items():
+                globals_[var_name] = cell.cell_contents
+                del deferred[var_name]
+
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return func

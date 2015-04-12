@@ -106,7 +106,7 @@ def test_closures3():
         def fact(n, a=1):
             if n == 0:
                 return a
-            return fact(n - x(), a * n)
+            return fact(n - x, a * n)
 
         x = 1
 
