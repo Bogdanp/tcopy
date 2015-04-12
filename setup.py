@@ -6,7 +6,7 @@ with open("README.md") as f:
 setup(
     name="tcopy",
     packages=["tcopy"],
-    version="0.1.1",
+    version="0.1.2",
     description="Basic tail call removal decorator",
     long_description=long_description,
     author="Bogdan Popa",
